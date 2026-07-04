@@ -46,8 +46,10 @@ function useLeafletIcons() {
       const leaflet = L.default ?? L;
 
       // Fix default marker icon paths for bundlers.
-      delete (leaflet.Icon.Default.prototype as Record<string, unknown>)
-        ._getIconUrl;
+      delete (leaflet.Icon.Default.prototype as unknown as Record<
+        string,
+        unknown
+      >)._getIconUrl;
       leaflet.Icon.Default.mergeOptions({
         iconRetinaUrl:
           "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
