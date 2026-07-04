@@ -79,8 +79,7 @@ export async function submitPayment(
   let ledger: number | undefined;
   try {
     const tx = await HORIZON.transactions().transaction(txHash).call();
-    gasXlm = parseFloat(tx.fee_charged ?? tx.max_fee ?? "100") / 10_000_000;
-    ledger = tx.ledger;
+    gasXlm = parseFloat(String(tx.fee_charged ?? tx.max_fee ?? "100")) / 10_000_000;
   } catch {
     // Non-fatal - we already have confirmation, just can't show exact fee.
   }

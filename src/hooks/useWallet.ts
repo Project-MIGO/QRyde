@@ -38,9 +38,7 @@ export function useWallet(): WalletState {
     let cancelled = false;
     (async () => {
       try {
-        const freighter = await withTimeout(import("@stellar/freighter-api"), {
-          isConnected: false,
-        } as { isConnected: boolean });
+        const freighter = await import("@stellar/freighter-api");
         const conn = await withTimeout(freighter.isConnected(), {
           isConnected: false,
         });
@@ -83,9 +81,7 @@ export function useWallet(): WalletState {
     setError(null);
     setStatus("checking");
     try {
-      const freighter = await withTimeout(import("@stellar/freighter-api"), {
-        isConnected: false,
-      } as { isConnected: boolean });
+      const freighter = await import("@stellar/freighter-api");
       const conn = await withTimeout(freighter.isConnected(), {
         isConnected: false,
       });
