@@ -22,9 +22,16 @@ import { Card } from "./Card";
 import { IconBubble } from "./IconBubble";
 import { Pill } from "./Pill";
 import { QrScanner } from "./QrScanner";
-import { buildQrydeLink, peso, truncateKey, type RideReceipt } from "./types";
+import {
+  buildQrydeLink,
+  computeFare,
+  peso,
+  truncateKey,
+  type RideReceipt,
+} from "./types";
 import { DEMO_DRIVER } from "./demo";
-import { explorerTxUrl, PHPC_DISPLAY_CODE } from "@/lib/stellar";
+import { explorerTxUrl, PHPC_DISPLAY_CODE, PHPC_HAS_TRUSTLINE } from "@/lib/stellar";
+import { phpToXlm } from "@/lib/price";
 
 const ENTRY_LINK = buildQrydeLink("entry", DEMO_DRIVER);
 const EXIT_LINK = buildQrydeLink("exit", DEMO_DRIVER);
@@ -166,7 +173,15 @@ function RidingPanel({
   onDismissCollision: () => void;
   onArrive: () => void;
 }) {
-  const fare = peso(15 + 2 * distanceKm);
+  const { xlmPhpRate } = useQryde();
+  const farePhp = computeFare(distanceKm);
+  const fareLabel = peso(farePhp);
+  const onChainAmount = PHPC_HAS_TRUSTLINE
+    ? farePhp
+    : phpToXlm(farePhp, xlmPhpRate);
+  const onChainLabel = `${onChainAmount.toFixed(
+    PHPC_HAS_TRUSTLINE ? 2 : 4,
+  )} ${PHPC_DISPLAY_CODE}`;
   const needsMotion =
     motionPermission === "prompt" || motionPermission === "denied";
 
@@ -237,7 +252,10 @@ function RidingPanel({
           <div className="metric__label">
             <FiZap /> Fare
           </div>
-          <div className="metric__value metric__value--accent">{fare}</div>
+          <div className="metric__value metric__value--accent">{fareLabel}</div>
+          {!PHPC_HAS_TRUSTLINE && (
+            <div className="metric__sub">≈ {onChainLabel}</div>
+          )}
         </div>
       </div>
 
@@ -247,8 +265,16 @@ function RidingPanel({
           <span>+</span>
           <span>₱2.00 / km</span>
           <span>=</span>
-          <span className="ride__fare-breakdown__total">{fare}</span>
+          <span className="ride__fare-breakdown__total">{fareLabel}</span>
         </div>
+        {!PHPC_HAS_TRUSTLINE && (
+          <div className="ride__fare-conversion">
+            Settled on-chain as <strong>{onChainLabel}</strong>{" "}
+            <span className="ride__fare-rate">
+              (1 XLM ≈ ₱{xlmPhpRate.toFixed(2)})
+            </span>
+          </div>
+        )}
       </Card>
 
       <Card>
@@ -308,9 +334,6 @@ function PayingPanel() {
           Signing and submitting the transaction to the Stellar ledger…
         </p>
       </div>
-      <Pill tone="accent" pulseDot>
-        Stellar Testnet
-      </Pill>
     </div>
   );
 }
@@ -355,11 +378,29 @@ function SuccessPanel({ onDone }: { onDone: () => void }) {
           <span className="card__value">{last.distanceKm.toFixed(2)} km</span>
         </div>
         <div className="card__row">
-          <span className="card__label">Fare sent</span>
+          <span className="card__label">Fare (PHP)</span>
           <span className="card__value card__value--accent">
-            {peso(last.farePhpc)} {PHPC_DISPLAY_CODE}
+            {peso(last.farePhpc)}
           </span>
         </div>
+        {last.sentAmount !== undefined && (
+          <div className="card__row">
+            <span className="card__label">Settled on-chain</span>
+            <span className="card__value card__value--accent">
+              {last.sentAmount.toFixed(
+                last.sentAsset === "XLM" ? 4 : 2,
+              )} {last.sentAsset ?? PHPC_DISPLAY_CODE}
+            </span>
+          </div>
+        )}
+        {!PHPC_HAS_TRUSTLINE && last.xlmPhpRate !== undefined && (
+          <div className="card__row">
+            <span className="card__label">FX rate used</span>
+            <span className="card__value">
+              1 XLM ≈ ₱{last.xlmPhpRate.toFixed(2)}
+            </span>
+          </div>
+        )}
         <div className="card__row">
           <span className="card__label">Network gas fee</span>
           <span className="card__value">{last.gasXlm.toFixed(7)} XLM</span>

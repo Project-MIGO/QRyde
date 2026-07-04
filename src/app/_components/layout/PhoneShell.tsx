@@ -26,7 +26,7 @@ export function PhoneShell({
   showNav = false,
   children,
 }: PhoneShellProps) {
-  const { wallet, balances } = useQryde();
+  const { wallet, balances, xlmPhpRate, xlmPhpRateStale } = useQryde();
   const { collision } = useRideStatus();
   const walletReady = wallet.status === "ready" && !!wallet.publicKey;
 
@@ -43,6 +43,16 @@ export function PhoneShell({
                   <h1>{title}</h1>
                 </div>
               <div className="app-header__actions">
+                <span
+                  className="pill pill--neutral pill--compact"
+                  title={
+                    xlmPhpRateStale
+                      ? "Offline rate (XLM/PHP)"
+                      : "Live XLM/PHP rate"
+                  }
+                >
+                  ₱{xlmPhpRate.toFixed(2)} / XLM
+                </span>
                 {walletReady && balances.balances && !balances.balances.funded && (
                   <span className="pill pill--warning pill--compact">Unfunded</span>
                 )}

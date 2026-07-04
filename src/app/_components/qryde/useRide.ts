@@ -17,6 +17,8 @@ import {
   type RideState,
 } from "./types";
 import { DEMO_DRIVER } from "./demo";
+import { phpToXlm } from "@/lib/price";
+import { PHPC_DISPLAY_CODE, PHPC_HAS_TRUSTLINE } from "@/lib/stellar";
 import {
   PaymentError,
   PaymentRejectedError,
@@ -107,7 +109,16 @@ export function useRide() {
       geo.stop();
       motion.stop();
       const finalDistance = geo.distanceKm;
-      const fare = computeFare(finalDistance);
+      const farePhp = computeFare(finalDistance);
+
+      // Convert to the on-chain asset. If the configured asset is a PHP-pegged
+      // stablecoin (PHPC), the PHP fare IS the on-chain amount. If we're
+      // falling back to native XLM, convert at the live rate.
+      const rate = ctx.xlmPhpRate;
+      const onChainAmount = PHPC_HAS_TRUSTLINE
+        ? farePhp
+        : phpToXlm(farePhp, rate);
+      const onChainAsset = PHPC_DISPLAY_CODE;
 
       ctx.setRideState("PAYING");
 
@@ -120,7 +131,7 @@ export function useRide() {
           const result = await submitPayment(
             ctx.wallet.publicKey,
             activeDriver,
-            fare,
+            onChainAmount,
             ctx.wallet.sign,
           );
           txHash = result.txHash;
@@ -149,22 +160,28 @@ export function useRide() {
 
       const receipt: RideReceipt = {
         distanceKm: finalDistance,
-        farePhpc: fare,
+        farePhpc: farePhp,
         gasXlm,
         txHash,
         driver: activeDriver,
         completedAt,
+        sentAmount: onChainAmount,
+        sentAsset: onChainAsset,
+        xlmPhpRate: rate,
       };
       ctx.appendHistory({
         id: randomHex(8),
         distanceKm: finalDistance,
-        farePhpc: fare,
+        farePhpc: farePhp,
         gasXlm,
         txHash,
         driver: activeDriver,
         completedAt,
         fromLabel: "Pickup point",
         toLabel: "Drop-off",
+        sentAmount: onChainAmount,
+        sentAsset: onChainAsset,
+        xlmPhpRate: rate,
       });
       ctx.refreshBalances();
       ctx.setRideState("SUCCESS");

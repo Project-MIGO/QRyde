@@ -9,7 +9,7 @@ import { truncateKey, peso } from "./types";
 import { PHPC_DISPLAY_CODE } from "@/lib/stellar";
 
 export function ProfileScreen() {
-  const { wallet, balances, history } = useQryde();
+  const { wallet, balances, history, xlmPhpRate, xlmPhpRateStale } = useQryde();
 
   const totalRides = history.length;
   const totalDistance = history.reduce((acc, r) => acc + r.distanceKm, 0);
@@ -93,6 +93,15 @@ export function ProfileScreen() {
           <span className="card__label">{PHPC_DISPLAY_CODE} balance</span>
           <span className="card__value card__value--mono">
             {balances.balances?.custom ?? "0.00"}
+          </span>
+        </div>
+        <div className="card__row">
+          <span className="card__label">XLM / PHP rate</span>
+          <span className="card__value card__value--mono">
+            ₱{xlmPhpRate.toFixed(2)}
+            {xlmPhpRateStale && (
+              <span className="profile__rate-stale"> · offline</span>
+            )}
           </span>
         </div>
       </Card>

@@ -5,7 +5,7 @@ import { ProfileScreen } from "../_components/qryde/ProfileScreen";
 
 export default function ProfilePage() {
   return (
-    <PhoneShell title="Profile" showNav>
+    <PhoneShell title="QRyde" showNav>
       <ProfileScreen />
     </PhoneShell>
   );

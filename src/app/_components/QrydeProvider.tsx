@@ -16,6 +16,7 @@ import {
 } from "react";
 import { useWallet } from "@/hooks/useWallet";
 import { useBalances } from "@/hooks/useBalances";
+import { useXlmPhpRate } from "@/hooks/useXlmPhpRate";
 import type { DriverInfo, RideHistoryItem, RideState } from "@/app/_components/qryde/types";
 
 const HISTORY_KEY = "qryde:history";
@@ -47,6 +48,11 @@ interface QrydeContextValue {
   balanceKey: number;
   refreshBalances: () => Promise<void>;
 
+  /** Live XLM/PHP rate. */
+  xlmPhpRate: number;
+  /** True when the rate came from the hardcoded fallback. */
+  xlmPhpRateStale: boolean;
+
   rideState: RideState;
   setRideState: (s: RideState) => void;
   driver: DriverInfo | null;
@@ -67,6 +73,7 @@ export function QrydeProvider({ children }: { children: ReactNode }) {
   const wallet = useWallet();
   const [balanceKey, setBalanceKey] = useState(0);
   const balances = useBalances(wallet.publicKey, balanceKey);
+  const xlmRate = useXlmPhpRate();
 
   const [rideState, setRideState] = useState<RideState>("IDLE");
   const [driver, setDriver] = useState<DriverInfo | null>(null);
@@ -96,6 +103,8 @@ export function QrydeProvider({ children }: { children: ReactNode }) {
       balances,
       balanceKey,
       refreshBalances,
+      xlmPhpRate: xlmRate.rate,
+      xlmPhpRateStale: xlmRate.stale,
       rideState,
       setRideState,
       driver,
@@ -107,7 +116,7 @@ export function QrydeProvider({ children }: { children: ReactNode }) {
       demoMode,
       setDemoMode,
     }),
-    [wallet, balances, balanceKey, refreshBalances, rideState, driver, scanError, history, appendHistory, demoMode],
+    [wallet, balances, balanceKey, refreshBalances, xlmRate.rate, xlmRate.stale, rideState, driver, scanError, history, appendHistory, demoMode],
   );
 
   return <QrydeContext.Provider value={value}>{children}</QrydeContext.Provider>;

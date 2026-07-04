@@ -5,7 +5,7 @@ import { TopUpScreen } from "../_components/qryde/TopUpScreen";
 
 export default function TopUpPage() {
   return (
-    <PhoneShell title="Top up" showNav={false}>
+    <PhoneShell title="QRyde" showNav={false}>
       <TopUpScreen />
     </PhoneShell>
   );

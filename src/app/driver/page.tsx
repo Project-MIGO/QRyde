@@ -5,7 +5,7 @@ import { DriverScreen } from "../_components/qryde/DriverScreen";
 
 export default function DriverPage() {
   return (
-    <PhoneShell title="Driver view" showNav>
+    <PhoneShell title="QRyde" showNav>
       <DriverScreen />
     </PhoneShell>
   );

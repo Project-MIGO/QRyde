@@ -5,7 +5,7 @@ import { HistoryScreen } from "../_components/qryde/HistoryScreen";
 
 export default function HistoryPage() {
   return (
-    <PhoneShell title="History" showNav>
+    <PhoneShell title="QRyde" showNav>
       <HistoryScreen />
     </PhoneShell>
   );

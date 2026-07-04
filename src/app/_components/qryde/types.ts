@@ -27,11 +27,18 @@ export interface GeoPoint {
 
 export interface RideReceipt {
   distanceKm: number;
+  /** Fare in PHP (display currency). */
   farePhpc: number;
   gasXlm: number;
   txHash: string;
   driver: DriverInfo;
   completedAt: number;
+  /** Amount actually sent on-chain (e.g. 1.3293 XLM or 17.00 PHPC). Optional for back-compat with old history. */
+  sentAmount?: number;
+  /** Asset code of the on-chain payment ("XLM" or "PHPC"). */
+  sentAsset?: string;
+  /** XLM/PHP rate used at the time of the payment. */
+  xlmPhpRate?: number;
 }
 
 /** Persisted ride history entry (also used for in-memory history). */

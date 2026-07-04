@@ -11,7 +11,7 @@ export default function HomePage() {
 
   if (!ready && !demoMode) {
     return (
-      <PhoneShell title="Welcome" showNav={false}>
+      <PhoneShell title="QRyde" showNav={false}>
         <OnboardingScreen onDemo={() => setDemoMode(true)} />
       </PhoneShell>
     );

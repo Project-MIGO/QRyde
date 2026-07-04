@@ -72,6 +72,14 @@ function RideRow({ ride }: { ride: RideHistoryItem }) {
             </div>
             <div className="ride-row__amount">
               <div className="ride-row__fare">{peso(ride.farePhpc)}</div>
+              {ride.sentAmount !== undefined && (
+                <div className="ride-row__sent">
+                  {ride.sentAmount.toFixed(
+                    ride.sentAsset === "XLM" ? 4 : 2,
+                  )}{" "}
+                  {ride.sentAsset}
+                </div>
+              )}
               <div className="ride-row__distance">
                 {ride.distanceKm.toFixed(2)} km
               </div>

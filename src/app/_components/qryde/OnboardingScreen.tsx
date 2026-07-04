@@ -16,8 +16,10 @@ export function OnboardingScreen({ onDemo }: { onDemo: () => void }) {
         </span>
         <h1 className="onboarding__title">QRyde</h1>
         <p className="onboarding__body">
-          QR-based P2P tricycle fares settled on Stellar. No app for the driver.
-          No coins for the passenger.
+          QRyde is a cashless tricycle fare payment system on the Stellar
+          blockchain. Passengers scan a QR on board to start the trip and again
+          on exit to pay the fare in PHPC stablecoin, settled on-chain in
+          seconds. Drivers just display two QR codes.
         </p>
       </div>
 
@@ -78,10 +80,6 @@ export function OnboardingScreen({ onDemo }: { onDemo: () => void }) {
       <Button variant="outline" size="md" onClick={onDemo}>
         View as guest (demo mode)
       </Button>
-
-      <div className="onboarding__footer">
-        Built for the StellarX PH workshop · testnet only
-      </div>
     </div>
   );
 }
