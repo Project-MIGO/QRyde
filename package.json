@@ -1,0 +1,30 @@
+{
+  "name": "qryde",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@stellar/freighter-api": "^6.0.0",
+    "@stellar/stellar-sdk": "^15.0.0",
+    "@types/qrcode": "^1.5.6",
+    "html5-qrcode": "^2.3.8",
+    "next": "^16.2.10",
+    "qrcode": "^1.5.4",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-icons": "^5.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "sass": "^1.101.0",
+    "typescript": "^5.9.3"
+  }
+}

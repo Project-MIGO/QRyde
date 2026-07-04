@@ -1,0 +1,39 @@
+@use "../variables" as *;
+
+.bottom-nav {
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
+  background: $color-canvas;
+  border-top: 1px solid $color-line;
+  flex-shrink: 0;
+
+  &__list {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-around;
+  }
+
+  &__tab {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 10px 0;
+    font-size: 10px;
+    font-weight: 500;
+    color: $color-ink-muted;
+    transition: $transition-fast;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    &--active {
+      color: $color-ink;
+    }
+  }
+}

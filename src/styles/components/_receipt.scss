@@ -1,0 +1,145 @@
+@use "../variables" as *;
+
+.collision-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-3;
+  border-radius: $radius-md;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  padding: $space-3 $space-4;
+
+  &__icon {
+    width: 16px;
+    height: 16px;
+    color: $color-danger;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: 12px;
+    font-weight: 600;
+    color: $color-danger;
+  }
+
+  &__body {
+    font-size: 11px;
+    color: $color-danger-soft;
+    line-height: 1.45;
+    margin-top: 2px;
+  }
+
+  &__action {
+    margin-top: $space-2;
+  }
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $space-2;
+}
+
+.metric {
+  background: $color-surface;
+  border-radius: $radius-md;
+  padding: 10px;
+  border: 1px solid $color-line;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: $color-ink-muted;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &__value {
+    font-size: 18px;
+    font-weight: 600;
+    color: $color-ink;
+    letter-spacing: -0.01em;
+    font-feature-settings: "tnum";
+  }
+
+  &__value--accent {
+    color: $color-ink;
+  }
+
+  &__unit {
+    font-size: 11px;
+    font-weight: 500;
+    color: $color-ink-muted;
+  }
+}
+
+.gforce-card {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+
+  &__bar {
+    height: 6px;
+    border-radius: $radius-pill;
+    background: $color-surface-alt;
+    overflow: hidden;
+    position: relative;
+  }
+
+  &__fill {
+    height: 100%;
+    transition: width 200ms ease;
+  }
+
+  &__bar-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: $color-ink-muted;
+  }
+}
+
+.driver-row {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+
+  &__name {
+    font-size: 13px;
+    font-weight: 500;
+    color: $color-ink;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__vehicle {
+    font-size: 11px;
+    color: $color-ink-soft;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &__main {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}

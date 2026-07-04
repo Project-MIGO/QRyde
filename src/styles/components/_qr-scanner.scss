@@ -1,0 +1,245 @@
+@use "../variables" as *;
+
+.qr-scanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-3;
+
+  &__viewport {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #000;
+    border-radius: $radius-md;
+    overflow: hidden;
+    border: 1px solid $color-line;
+  }
+
+  &__video {
+    height: 100%;
+    width: 100%;
+
+    video {
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__reticle-wrap {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__reticle {
+    position: relative;
+    width: 200px;
+    height: 200px;
+  }
+
+  &__corner {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: 2px solid white;
+
+    &--tl {
+      border-right: none;
+      border-bottom: none;
+      top: 0;
+      left: 0;
+    }
+    &--tr {
+      border-left: none;
+      border-bottom: none;
+      top: 0;
+      right: 0;
+    }
+    &--bl {
+      border-right: none;
+      border-top: none;
+      bottom: 0;
+      left: 0;
+    }
+    &--br {
+      border-left: none;
+      border-top: none;
+      bottom: 0;
+      right: 0;
+    }
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.85);
+    padding: 0 $space-6;
+
+    &--loading {
+      background: rgba(0, 0, 0, 0.6);
+      font-size: 12px;
+    }
+    &--error {
+      background: rgba(0, 0, 0, 0.8);
+      gap: $space-2;
+    }
+  }
+
+  &__overlay-icon {
+    width: 24px;
+    height: 24px;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  &__overlay-title {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  &__overlay-hint {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  &__simulate {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: $radius-sm;
+    background: $color-surface;
+    padding: 6px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    color: $color-ink;
+    border: 1px solid $color-line-strong;
+  }
+
+  &__simulate-icon {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.scan-screen {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  &__title-row {
+    text-align: center;
+  }
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-md;
+    background: $color-surface-alt;
+    color: $color-ink;
+    margin-bottom: $space-3;
+    border: 1px solid $color-line;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: $color-ink;
+  }
+
+  &__body {
+    font-size: 12px;
+    color: $color-ink-soft;
+    margin-top: 4px;
+  }
+
+  &__error {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    border-radius: $radius-md;
+    background: #fef2f2;
+    padding: $space-3 $space-4;
+    font-size: 12px;
+    font-weight: 500;
+    color: $color-danger-soft;
+    border: 1px solid #fecaca;
+
+    svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+  }
+
+  &__back {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: $color-ink;
+    margin-bottom: $space-1;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+.driver-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-3;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  &__canvas {
+    border: 1px solid $color-line;
+    border-radius: $radius-md;
+    max-width: 100%;
+    height: auto;
+  }
+
+  &__payload {
+    width: 100%;
+    max-width: 100%;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+    font-size: 10px;
+    line-height: 1.4;
+    color: $color-ink-muted;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    text-align: center;
+    padding: $space-2 $space-3;
+    background: $color-surface-alt;
+    border: 1px solid $color-line;
+    border-radius: $radius-sm;
+    box-sizing: border-box;
+  }
+
+  &__error {
+    font-size: 11px;
+    color: $color-danger-soft;
+  }
+}

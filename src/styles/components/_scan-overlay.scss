@@ -1,0 +1,64 @@
+@use "../variables" as *;
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-3;
+  padding: $space-3 $space-4;
+  border-radius: $radius-md;
+  border: 1px solid;
+}
+
+.notice--warning {
+  background: #fffbeb;
+  border-color: #fde68a;
+
+  .notice__icon {
+    color: $color-warning;
+  }
+
+  .notice__title {
+    color: $color-warning;
+  }
+
+  .notice__body {
+    color: #78350f;
+  }
+}
+
+.notice--indigo {
+  background: $color-surface-alt;
+  border-color: $color-line;
+
+  .notice__icon {
+    color: $color-ink;
+  }
+  .notice__title {
+    color: $color-ink;
+  }
+  .notice__body {
+    color: $color-ink-soft;
+  }
+}
+
+.notice__icon {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.notice__title {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.notice__body {
+  font-size: 12px;
+  line-height: 1.45;
+  margin-top: 4px;
+}
+
+.notice__action {
+  margin-top: $space-3;
+}

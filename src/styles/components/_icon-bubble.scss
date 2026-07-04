@@ -1,0 +1,56 @@
+@use "../variables" as *;
+
+.icon-bubble {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-sm;
+  flex-shrink: 0;
+  background: $color-surface-alt;
+  color: $color-ink;
+  border: 1px solid $color-line;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.icon-bubble--accent {
+  background: #f0fdf4;
+  color: $color-accent-soft;
+  border-color: #bbf7d0;
+}
+.icon-bubble--indigo {
+  background: $color-surface-alt;
+  color: $color-ink;
+  border-color: $color-line;
+}
+.icon-bubble--amber {
+  background: #fef3c7;
+  color: $color-warning;
+  border-color: #fde68a;
+}
+.icon-bubble--danger {
+  background: #fef2f2;
+  color: $color-danger-soft;
+  border-color: #fecaca;
+}
+.icon-bubble--neutral {
+  background: $color-surface-alt;
+  color: $color-ink-soft;
+  border-color: $color-line;
+}
+
+.icon-bubble--sm {
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-sm;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}

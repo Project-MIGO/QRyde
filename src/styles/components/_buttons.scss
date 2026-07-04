@@ -1,0 +1,110 @@
+@use "sass:color";
+@use "../variables" as *;
+
+%button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  font-weight: 500;
+  text-align: center;
+  border-radius: $radius-md;
+  border: 1px solid transparent;
+  transition: background $transition-fast, border-color $transition-fast, color $transition-fast;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn {
+  @extend %button-base;
+  width: 100%;
+  padding: 12px $space-4;
+  font-size: 14px;
+}
+
+.btn--primary {
+  background: $color-ink;
+  color: white;
+  &:hover:not(:disabled) {
+    background: $color-primary-hover;
+  }
+}
+
+.btn--accent {
+  background: $color-accent;
+  color: white;
+  &:hover:not(:disabled) {
+    background: $color-accent-soft;
+  }
+}
+
+.btn--danger {
+  background: $color-danger;
+  color: white;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: $color-ink;
+  &:hover:not(:disabled) {
+    background: $color-surface-alt;
+  }
+}
+
+.btn--outline {
+  background: $color-surface;
+  color: $color-ink;
+  border-color: $color-line-strong;
+  &:hover:not(:disabled) {
+    background: $color-surface-alt;
+  }
+}
+
+.btn--sm {
+  padding: 8px 12px;
+  font-size: 12px;
+  width: auto;
+}
+
+.btn--lg {
+  padding: 14px $space-4;
+  font-size: 14px;
+}
+
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  border-radius: $radius-md;
+  border: 1px solid $color-line-strong;
+  padding: 10px $space-4;
+  font-size: 13px;
+  font-weight: 500;
+  color: $color-ink;
+  background: $color-surface;
+  text-decoration: none;
+  transition: $transition-fast;
+  &:hover {
+    background: $color-surface-alt;
+  }
+}
+
+.btn-flat-amber {
+  background: $color-warning;
+  color: white;
+  padding: 6px 12px;
+  border-radius: $radius-sm;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.btn-flat-danger {
+  background: $color-danger;
+  color: white;
+  padding: 6px 12px;
+  border-radius: $radius-sm;
+  font-size: 12px;
+  font-weight: 500;
+}

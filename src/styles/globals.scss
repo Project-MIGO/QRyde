@@ -1,0 +1,29 @@
+// QRyde SCSS entrypoint
+// Global styles + BEM-style components for the phone-shaped MVP.
+//
+// We use @use (not @import) for everything. Each partial loads its own
+// dependencies (variables, etc.) via @use - this way sass can properly
+// namespace them and avoid "variable already defined" errors. The entry
+// stylesheet does NOT re-@use "./variables" - the partials already do.
+
+@use "./base";
+@use "./utilities";
+@use "./layout";
+@use "./components/header";
+@use "./components/bottom-nav";
+@use "./components/buttons";
+@use "./components/card";
+@use "./components/pill";
+@use "./components/icon-bubble";
+@use "./components/feature-card";
+@use "./components/wallet-card";
+@use "./components/scan-overlay";
+@use "./components/receipt";
+@use "./components/qr-scanner";
+@use "./screens/onboarding";
+@use "./screens/home";
+@use "./screens/history";
+@use "./screens/profile";
+@use "./screens/ride";
+@use "./screens/driver";
+@use "./screens/topup";

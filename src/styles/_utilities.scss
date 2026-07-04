@@ -1,0 +1,53 @@
+@use "./variables" as *;
+
+.u-pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.u-pill-dot--accent {
+  background: $color-accent;
+}
+.u-pill-dot--indigo {
+  background: $color-primary;
+}
+.u-pill-dot--warning {
+  background: $color-warning;
+}
+.u-pill-dot--danger {
+  background: $color-danger;
+}
+.u-pill-dot--neutral {
+  background: $color-ink-muted;
+}
+
+.u-spin {
+  animation: spin 1.1s linear infinite;
+}
+
+.u-collision-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $color-danger;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.u-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+
+  &--accent { background: $color-accent; }
+  &--indigo { background: $color-ink; }
+  &--warning { background: $color-warning; }
+  &--danger { background: $color-danger; }
+  &--neutral { background: $color-ink-muted; }
+  &--invert { background: white; }
+}

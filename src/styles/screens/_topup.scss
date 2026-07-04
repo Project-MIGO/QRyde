@@ -1,0 +1,90 @@
+@use "../variables" as *;
+
+.topup {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  &__back {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: $color-ink;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  &__hero {
+    border-radius: $radius-md;
+    background: $color-surface-alt;
+    color: $color-ink;
+    padding: $space-4;
+    border: 1px solid $color-line;
+  }
+
+  &__hero-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: $color-ink-soft;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  &__hero-title {
+    margin-top: $space-2;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  &__hero-body {
+    margin-top: $space-2;
+    font-size: 12px;
+    line-height: 1.45;
+    color: $color-ink-soft;
+  }
+
+  &__key {
+    margin-top: $space-2;
+    border-radius: $radius-sm;
+    background: $color-surface-alt;
+    padding: $space-3;
+    word-break: break-all;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+    font-size: 11px;
+    color: $color-ink-soft;
+    border: 1px solid $color-line;
+  }
+
+  &__success {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    border-radius: $radius-md;
+    background: #f0fdf4;
+    padding: $space-3;
+    color: $color-accent-soft;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #bbf7d0;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}

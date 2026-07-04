@@ -1,0 +1,61 @@
+@use "../variables" as *;
+
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  background: $color-surface;
+  border: 1px solid $color-line;
+  border-radius: $radius-md;
+  padding: $space-3;
+  text-align: left;
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: $radius-sm;
+    background: $color-surface-alt;
+    color: $color-ink;
+    margin-bottom: $space-1;
+    border: 1px solid $color-line;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  &__title {
+    font-size: 12px;
+    font-weight: 600;
+    color: $color-ink;
+  }
+
+  &__body {
+    font-size: 11px;
+    color: $color-ink-soft;
+    line-height: 1.45;
+  }
+}
+
+.feature-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border-radius: $radius-md;
+  border: 1px solid $color-line;
+  background: $color-surface;
+  padding: 10px 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: $color-ink;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}

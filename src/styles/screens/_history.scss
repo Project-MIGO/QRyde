@@ -1,0 +1,138 @@
+@use "../variables" as *;
+
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  &__empty-card {
+    text-align: center;
+  }
+
+  &__empty-icon {
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-md;
+    background: $color-surface-alt;
+    color: $color-ink;
+    margin-bottom: 12px;
+    border: 1px solid $color-line;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &__empty-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-ink;
+  }
+
+  &__empty-body {
+    font-size: 11px;
+    line-height: 1.45;
+    color: $color-ink-soft;
+    margin-top: 4px;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+  }
+}
+
+.ride-row {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-3;
+
+  &__main {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $space-2;
+  }
+
+  &__title {
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-ink;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__subtitle {
+    margin-top: 2px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: $color-ink-soft;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &__amount {
+    text-align: right;
+  }
+
+  &__fare {
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-ink;
+  }
+
+  &__distance {
+    font-size: 10px;
+    color: $color-ink-muted;
+  }
+
+  &__meta {
+    margin-top: $space-3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+  }
+
+  &__date {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: $color-ink-muted;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &__tx-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+    color: $color-ink-soft;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+}

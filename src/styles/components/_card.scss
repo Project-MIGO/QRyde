@@ -1,0 +1,86 @@
+@use "../variables" as *;
+
+.card {
+  background: $color-surface;
+  border-radius: $radius-md;
+  padding: $space-4;
+  border: 1px solid $color-line;
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+}
+
+.card--padded-sm {
+  padding: $space-3;
+  gap: $space-2;
+}
+
+.card--flat {
+  border: none;
+}
+
+.card__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: $space-3;
+}
+
+.card__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: $color-ink;
+}
+
+.card__subtitle {
+  font-size: 11px;
+  margin-top: 2px;
+  color: $color-ink-soft;
+}
+
+.card__divider {
+  height: 1px;
+  background: $color-line;
+  margin: $space-4 0;
+}
+
+.card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+}
+
+.card__row + .card__row {
+  padding-top: $space-3;
+  border-top: 1px solid $color-line;
+}
+
+.card__value {
+  font-size: 13px;
+  font-weight: 500;
+  color: $color-ink;
+}
+
+.card__value--accent {
+  color: $color-accent;
+}
+
+.card__value--mono {
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+  font-size: 12px;
+}
+
+.card__label {
+  font-size: 12px;
+  color: $color-ink-soft;
+}
+
+.card__link {
+  font-size: 11px;
+  color: $color-ink-soft;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

@@ -1,0 +1,98 @@
+@use "../variables" as *;
+
+.wallet-hero {
+  position: relative;
+  border-radius: $radius-md;
+  background: $color-surface;
+  padding: $space-4;
+  color: $color-ink;
+  border: 1px solid $color-line;
+
+  &__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: $color-ink-soft;
+  }
+
+  &__bar-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__refresh {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $radius-sm;
+    background: transparent;
+    color: $color-ink-soft;
+    border: 1px solid $color-line;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    &--loading svg {
+      animation: spin 1.1s linear infinite;
+    }
+  }
+
+  &__amount {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: $space-2;
+  }
+
+  &__amount-value {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: $color-ink;
+    font-feature-settings: "tnum";
+  }
+
+  &__amount-code {
+    font-size: 13px;
+    font-weight: 500;
+    color: $color-ink-soft;
+  }
+
+  &__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: $space-3;
+  }
+
+  &__copy {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: $radius-sm;
+    background: $color-surface-alt;
+    color: $color-ink-soft;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid $color-line;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+    margin-top: $space-3;
+
+    svg {
+      width: 11px;
+      height: 11px;
+    }
+  }
+}

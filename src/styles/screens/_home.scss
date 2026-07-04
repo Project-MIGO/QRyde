@@ -1,0 +1,77 @@
+@use "../variables" as *;
+
+.home {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $space-2;
+  }
+
+  &__stat {
+    background: $color-surface;
+    border-radius: $radius-md;
+    padding: $space-3;
+    border: 1px solid $color-line;
+  }
+
+  &__stat-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: $color-ink-muted;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &__stat-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: $color-ink;
+    margin-top: 4px;
+    font-feature-settings: "tnum";
+  }
+
+  &__how-list {
+    margin-top: $space-3;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+  }
+
+  &__how-item {
+    display: flex;
+    align-items: flex-start;
+    gap: $space-3;
+    font-size: 12px;
+    color: $color-ink-soft;
+  }
+
+  &__how-num {
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: $radius-pill;
+    background: $color-surface-alt;
+    color: $color-ink;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+    border: 1px solid $color-line;
+  }
+}

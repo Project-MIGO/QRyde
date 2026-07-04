@@ -1,0 +1,56 @@
+@use "sass:color";
+@use "../variables" as *;
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: $radius-pill;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  border: 1px solid transparent;
+}
+
+.pill--accent {
+  background: #f0fdf4;
+  color: $color-accent-soft;
+  border-color: #bbf7d0;
+}
+.pill--indigo {
+  background: $color-surface-alt;
+  color: $color-ink;
+  border-color: $color-line;
+}
+.pill--warning {
+  background: #fef3c7;
+  color: $color-warning;
+  border-color: #fde68a;
+}
+.pill--danger {
+  background: #fef2f2;
+  color: $color-danger-soft;
+  border-color: #fecaca;
+}
+.pill--neutral {
+  background: $color-surface-alt;
+  color: $color-ink-soft;
+  border-color: $color-line;
+}
+
+.pill--invert {
+  background: $color-ink;
+  color: white;
+  border-color: $color-ink;
+}
+
+.pill--compact {
+  padding: 2px 6px;
+  font-size: 10px;
+}
+
+.pill__icon {
+  width: 10px;
+  height: 10px;
+}

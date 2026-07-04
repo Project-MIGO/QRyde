@@ -1,0 +1,45 @@
+// Design tokens - corporate / Wise-Mercury direction.
+// Flat palette, 1px borders, near-black ink, no gradients, no glow shadows.
+
+$color-ink: #0a0a0a;
+$color-ink-soft: #525252;
+$color-ink-muted: #8a8a8a;
+
+$color-line: #e6e6e6;
+$color-line-strong: #d4d4d4;
+
+$color-canvas: #ffffff;
+$color-surface: #ffffff;
+$color-surface-alt: #fafafa;
+
+$color-primary: #0a0a0a;
+$color-primary-hover: #262626;
+
+$color-accent: #1a4d3a;
+$color-accent-soft: #145038;
+
+$color-success: #15803d;
+$color-warning: #b45309;
+$color-danger: #b91c1c;
+$color-danger-soft: #991b1b;
+
+$space-1: 0.25rem;
+$space-2: 0.5rem;
+$space-3: 0.75rem;
+$space-4: 1rem;
+$space-5: 1.25rem;
+$space-6: 1.5rem;
+$space-7: 1.75rem;
+$space-8: 2rem;
+
+$radius-sm: 4px;
+$radius-md: 6px;
+$radius-lg: 8px;
+$radius-xl: 10px;
+$radius-pill: 999px;
+
+$phone-width: 400px;
+$phone-height: 844px;
+
+$transition-fast: 120ms ease;
+$transition-base: 160ms ease;

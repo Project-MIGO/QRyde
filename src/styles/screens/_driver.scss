@@ -1,0 +1,39 @@
+@use "../variables" as *;
+
+.driver-screen {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  &__back {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: $color-ink;
+  }
+
+  &__why {
+    color: $color-ink-soft;
+    font-size: 11px;
+    line-height: 1.45;
+    margin-top: $space-2;
+  }
+
+  &__qr-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $space-3;
+    text-align: center;
+    width: 100%;
+    min-width: 0;
+  }
+
+  &__hint {
+    font-size: 11px;
+    color: $color-ink-soft;
+  }
+}
