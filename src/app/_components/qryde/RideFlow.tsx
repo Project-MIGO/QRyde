@@ -22,6 +22,7 @@ import { Card } from "./Card";
 import { IconBubble } from "./IconBubble";
 import { Pill } from "./Pill";
 import { QrScanner } from "./QrScanner";
+import { MapNavigator } from "./MapNavigator";
 import {
   buildQrydeLink,
   computeFare,
@@ -84,6 +85,9 @@ export function RideFlow() {
         motionActive={motion.active}
         motionPermission={motion.permission}
         collision={motion.collision}
+        path={geo.path}
+        current={geo.current}
+        start={geo.start}
         onAllowMotion={ride.requestMotion}
         onDismissCollision={ride.dismissCollision}
         onArrive={ride.startScanExit}
@@ -157,6 +161,9 @@ function RidingPanel({
   motionActive,
   motionPermission,
   collision,
+  path,
+  current,
+  start,
   onAllowMotion,
   onDismissCollision,
   onArrive,
@@ -169,6 +176,9 @@ function RidingPanel({
   motionActive: boolean;
   motionPermission: import("./useAccelerometer").MotionPermission;
   collision: boolean;
+  path: import("./types").GeoPoint[];
+  current: import("./types").GeoPoint | null;
+  start: import("./types").GeoPoint | null;
   onAllowMotion: () => void;
   onDismissCollision: () => void;
   onArrive: () => void;
@@ -230,6 +240,8 @@ function RidingPanel({
           </button>
         </Card>
       )}
+
+      <MapNavigator path={path} current={current} start={start} />
 
       <div className="metric-grid">
         <div className="metric">

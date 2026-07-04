@@ -24,6 +24,8 @@ export interface GeolocationController {
   isSimulated: boolean;
   /** Smoothed speed in km/h, derived from successive haversine deltas. */
   speedKph: number;
+  /** Full array of tracked path points (in order). */
+  path: GeoPoint[];
   begin: () => void;
   stop: () => void;
   reset: () => void;
@@ -41,11 +43,13 @@ export function useGeolocation(): GeolocationController {
   const [start, setStart] = useState<GeoPoint | null>(null);
   const [isSimulated, setIsSimulated] = useState(false);
   const [speedKph, setSpeedKph] = useState(0);
+  const [path, setPath] = useState<GeoPoint[]>([]);
 
   const watchIdRef = useRef<number | null>(null);
   const simTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastPointRef = useRef<GeoPoint | null>(null);
   const speedBufferRef = useRef<number[]>([]);
+  const startRef = useRef<GeoPoint | null>(null);
 
   const accumulate = useCallback((point: GeoPoint) => {
     if (lastPointRef.current) {
@@ -71,6 +75,7 @@ export function useGeolocation(): GeolocationController {
     }
     lastPointRef.current = point;
     setCurrent(point);
+    setPath((p) => [...p, point]);
   }, []);
 
   const startSimulation = useCallback(() => {
@@ -78,6 +83,7 @@ export function useGeolocation(): GeolocationController {
     let lat = 14.676;
     let lng = 121.0437;
     const startPoint: GeoPoint = { lat, lng, timestamp: Date.now() };
+    startRef.current = startPoint;
     setStart(startPoint);
     lastPointRef.current = startPoint;
     setCurrent(startPoint);
@@ -92,8 +98,10 @@ export function useGeolocation(): GeolocationController {
   const begin = useCallback(() => {
     setDistanceKm(0);
     setSpeedKph(0);
+    setPath([]);
     lastPointRef.current = null;
     speedBufferRef.current = [];
+    startRef.current = null;
     setStart(null);
     setCurrent(null);
 
@@ -116,7 +124,10 @@ export function useGeolocation(): GeolocationController {
           lng: pos.coords.longitude,
           timestamp: pos.timestamp,
         };
-        if (!start) setStart(point);
+        if (!startRef.current) {
+          startRef.current = point;
+          setStart(point);
+        }
         // Use browser-reported speed when available (more accurate than deltas).
         if (typeof pos.coords.speed === "number" && pos.coords.speed >= 0) {
           setSpeedKph(Math.min(pos.coords.speed * 3.6, 80));
@@ -129,7 +140,7 @@ export function useGeolocation(): GeolocationController {
       },
       { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 },
     );
-  }, [accumulate, start, startSimulation]);
+  }, [accumulate, startSimulation]);
 
   const stop = useCallback(() => {
     if (
@@ -155,6 +166,8 @@ export function useGeolocation(): GeolocationController {
     setIsSimulated(false);
     lastPointRef.current = null;
     speedBufferRef.current = [];
+    startRef.current = null;
+    setPath([]);
   }, [stop]);
 
   return {
@@ -163,6 +176,7 @@ export function useGeolocation(): GeolocationController {
     start,
     isSimulated,
     speedKph,
+    path,
     begin,
     stop,
     reset,
