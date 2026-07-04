@@ -48,12 +48,26 @@ export function QrScanner({ onDecoded, simulatedValue }: QrScannerProps) {
     instance
       .start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 230, height: 230 } },
+      { fps: 10, qrbox: { width: 230, height: 230 } },
         handleSuccess,
         undefined,
       )
       .then(() => {
-        if (!cancelled) setStarting(false);
+        if (cancelled) return;
+        setStarting(false);
+        // Fix iOS: add playsinline to the video element so the camera
+        // renders inline rather than going fullscreen.
+        const video = document.querySelector(
+          `#${regionId} video`,
+        ) as HTMLVideoElement | null;
+        if (video) {
+          video.setAttribute("playsinline", "");
+          video.setAttribute("webkit-playsinline", "");
+          // Force the video to render properly
+          video.style.objectFit = "cover";
+          video.style.width = "100%";
+          video.style.height = "100%";
+        }
       })
       .catch((err: unknown) => {
         if (cancelled) return;
