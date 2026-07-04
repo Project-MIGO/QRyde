@@ -32,15 +32,14 @@ export interface WalletState {
 }
 
 export function useWallet(): WalletState {
-  const [status, setStatus] = useState<WalletStatus>("checking");
+  const [status, setStatus] = useState<WalletStatus>("idle");
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [network, setNetwork] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [installed, setInstalled] = useState(false);
 
-  // On mount, check for existing Freighter session.
-  // On mobile, Freighter uses WalletConnect — isConnected() returns false
-  // even when a session is possible, so we handle mobile differently.
+  // On mount, quickly check for existing Freighter session.
+  // Don't block the UI — if nothing is found, stay "idle".
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -49,27 +48,23 @@ export function useWallet(): WalletState {
         const mobile = isMobileDevice();
 
         if (!mobile) {
-          // Desktop: check for Freighter browser extension.
           const conn = await withTimeout(freighter.isConnected(), {
             isConnected: false,
-          });
+          }, 1500); // shorter timeout for initial check
           if (cancelled) return;
           if (!conn.isConnected) {
             setInstalled(false);
-            setStatus("idle");
-            return;
+            return; // stay idle
           }
           setInstalled(true);
         } else {
-          // Mobile: we can't detect the Freighter app beforehand.
-          // Mark as installed so the UI is ready to connect.
-          setInstalled(true);
+          setInstalled(true); // assume installed on mobile
         }
 
-        // Try restoring an existing session.
+        // Try restoring session — but don't hang the UI.
         const addr = await withTimeout(freighter.getAddress(), {
           address: "",
-        });
+        }, 2000);
         if (cancelled) return;
 
         if (addr.address) {
@@ -77,25 +72,15 @@ export function useWallet(): WalletState {
           const net = await withTimeout(freighter.getNetwork(), {
             network: "",
             networkPassphrase: "",
-          });
+          }, 2000);
           if (!cancelled) {
             setNetwork(net.network || net.networkPassphrase || null);
             setStatus("ready");
           }
-        } else {
-          setStatus("idle");
         }
+        // else stay idle
       } catch {
-        if (!cancelled) {
-          // On mobile, errors during initial check are expected.
-          // Don't show them — let the user tap "Connect".
-          if (isMobileDevice()) {
-            setInstalled(true);
-            setStatus("idle");
-          } else {
-            setStatus("idle");
-          }
-        }
+        // Silently stay idle — user will tap Connect when ready.
       }
     })();
     return () => {

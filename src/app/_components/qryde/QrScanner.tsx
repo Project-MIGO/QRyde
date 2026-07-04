@@ -14,17 +14,48 @@ interface QrScannerProps {
 /**
  * Wraps html5-qrcode with careful lifecycle handling so the camera stream is
  * always torn down between transitions (avoids dual-stream crashes / leaks).
- * Because embedded preview frames frequently block camera access, a graceful
- * error state plus a "Simulate scan" button keep the flow demonstrable.
+ *
+ * On iOS Safari the camera defaults to fullscreen. We use a MutationObserver
+ * to inject playsinline attributes BEFORE the video element starts playing.
+ * If the camera still can't start, a graceful error state + simulate button
+ * keep the flow demonstrable.
  */
 export function QrScanner({ onDecoded, simulatedValue }: QrScannerProps) {
   const reactId = useId();
   const regionId = `qryde-qr-region-${reactId.replace(/:/g, "")}`;
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const decodedRef = useRef(false);
+  const observerRef = useRef<MutationObserver | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [starting, setStarting] = useState(true);
 
+  // ── MutationObserver: catch <video> as soon as html5-qrcode adds it ──
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const el = document.getElementById(regionId);
+    if (!el) return;
+
+    const observer = new MutationObserver(() => {
+      const video = el.querySelector("video") as HTMLVideoElement | null;
+      if (video) {
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
+        video.style.objectFit = "cover";
+        video.style.width = "100%";
+        video.style.height = "100%";
+      }
+    });
+
+    observer.observe(el, { childList: true, subtree: true });
+    observerRef.current = observer;
+
+    return () => {
+      observer.disconnect();
+      observerRef.current = null;
+    };
+  }, [regionId]);
+
+  // ── QR scanner lifecycle ──
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -48,26 +79,12 @@ export function QrScanner({ onDecoded, simulatedValue }: QrScannerProps) {
     instance
       .start(
         { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 230, height: 230 } },
+        { fps: 10, qrbox: { width: 230, height: 230 } },
         handleSuccess,
         undefined,
       )
       .then(() => {
-        if (cancelled) return;
-        setStarting(false);
-        // Fix iOS: add playsinline to the video element so the camera
-        // renders inline rather than going fullscreen.
-        const video = document.querySelector(
-          `#${regionId} video`,
-        ) as HTMLVideoElement | null;
-        if (video) {
-          video.setAttribute("playsinline", "");
-          video.setAttribute("webkit-playsinline", "");
-          // Force the video to render properly
-          video.style.objectFit = "cover";
-          video.style.width = "100%";
-          video.style.height = "100%";
-        }
+        if (!cancelled) setStarting(false);
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -82,9 +99,6 @@ export function QrScanner({ onDecoded, simulatedValue }: QrScannerProps) {
       const active = scannerRef.current;
       scannerRef.current = null;
       if (!active) return;
-      // html5-qrcode throws "Cannot stop, scanner is not running or paused"
-      // when .start() never resolved (camera blocked / component unmounted
-      // before start). Only call stop() if the scanner actually started.
       const wasRunning = (active as unknown as { isScanning?: boolean }).isScanning;
       const teardown = wasRunning
         ? active.stop().catch(() => undefined)
