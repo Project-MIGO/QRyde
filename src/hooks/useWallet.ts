@@ -26,6 +26,35 @@ function getFreighter(): FreighterGlobal | null {
   return w.freighter ?? null;
 }
 
+// How long to wait for Freighter to inject itself into the page before
+// concluding it isn't installed. The injection happens after window load on
+// the Freighter iOS in-app browser and can be late on cold extension starts;
+// without this grace period we'd report "not installed" even when present.
+const INJECTION_WAIT_MS = 4000;
+
+/**
+ * Poll for `window.freighter`. On the iOS in-app browser the global isn't set
+ * at mount time, and `getFreighter()` would return null forever — so we wait.
+ */
+function waitForFreighterInjection(
+  cancelled: () => boolean,
+): Promise<FreighterGlobal | null> {
+  const f = getFreighter();
+  if (f) return Promise.resolve(f);
+  return new Promise((resolve) => {
+    let elapsed = 0;
+    const tick = () => {
+      if (cancelled()) return resolve(null);
+      const found = getFreighter();
+      if (found) return resolve(found);
+      elapsed += 200;
+      if (elapsed >= INJECTION_WAIT_MS) return resolve(null);
+      setTimeout(tick, 200);
+    };
+    tick();
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -56,13 +85,17 @@ export function useWallet(): WalletState {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const f = getFreighter();
+      // Wait for Freighter to inject (extension or iOS in-app browser).
+      // Without this grace period getFreighter() would race the injection
+      // and we'd wrongly tell the user to install Freighter.
+      const f = await waitForFreighterInjection(() => cancelled);
+      if (cancelled) return;
       if (!f) {
-        if (!cancelled) setInstalled(false);
+        setInstalled(false);
         return;
       }
 
-      if (!cancelled) setInstalled(true);
+      setInstalled(true);
 
       try {
         // Quick check: is there already an approved session?
@@ -91,7 +124,9 @@ export function useWallet(): WalletState {
     setError(null);
     setStatus("checking");
 
-    const f = getFreighter();
+    // Give the injection a chance (iOS browser / cold extension start) so we
+    // don't wrongly throw "not detected".
+    const f = await waitForFreighterInjection(() => false);
     if (!f) {
       setError(
         "Freighter not detected. Install the Freighter extension (desktop) or open this page in the Freighter app browser (iOS/Android).",

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 const GRAVITY = 9.8;
 const COLLISION_G_THRESHOLD = 4.0;
@@ -117,16 +117,32 @@ export function useAccelerometer(): AccelerometerController {
     clearCollision();
   }, [stop, clearCollision]);
 
-  return {
-    gForce,
-    peakG,
-    collision,
-    permission,
-    active,
-    requestPermission,
-    start,
-    stop,
-    clearCollision,
-    reset,
-  };
+  // Memoise for stable identity (see useGeolocation for rationale): keeps
+  // `useRide`'s memoised callbacks from churning on every render.
+  return useMemo(
+    () => ({
+      gForce,
+      peakG,
+      collision,
+      permission,
+      active,
+      requestPermission,
+      start,
+      stop,
+      clearCollision,
+      reset,
+    }),
+    [
+      gForce,
+      peakG,
+      collision,
+      permission,
+      active,
+      requestPermission,
+      start,
+      stop,
+      clearCollision,
+      reset,
+    ],
+  );
 }

@@ -25,16 +25,30 @@ export function QrScanner({ onDecoded, simulatedValue }: QrScannerProps) {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const decodedRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Keep the latest callbacks in refs so the camera-effect below can depend
+  // only on `regionId`. Otherwise a parent re-render (e.g. balances/wallet
+  // state churn) hands us a new `onDecoded` identity, which would re-run the
+  // effect and tear down + recreate the camera mid-scan — the scanner never
+  // stabilises and "buggy" scanning / dual-stream errors result.
+  const onDecodedRef = useRef(onDecoded);
+  onDecodedRef.current = onDecoded;
+  const simulatedRef = useRef(simulatedValue);
+  simulatedRef.current = simulatedValue;
+
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [starting, setStarting] = useState(true);
   const [uploading, setUploading] = useState(false);
 
   // ── Camera-based scanner ──
+  // Depends only on `regionId`; callbacks are read from refs above.
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     let cancelled = false;
     decodedRef.current = false;
+    setStarting(true);
+    setCameraError(null);
     const element = document.getElementById(regionId);
     if (!element) return;
 
@@ -47,7 +61,7 @@ export function QrScanner({ onDecoded, simulatedValue }: QrScannerProps) {
       instance
         .stop()
         .catch(() => undefined)
-        .finally(() => onDecoded(decodedText));
+        .finally(() => onDecodedRef.current(decodedText));
     };
 
     // Watch for the video element being added so we can add playsinline
@@ -101,22 +115,23 @@ export function QrScanner({ onDecoded, simulatedValue }: QrScannerProps) {
         }
       });
     };
-  }, [onDecoded, regionId]);
+  }, [regionId]);
 
   // ── Simulate scan ──
   const simulate = () => {
     if (decodedRef.current) return;
     decodedRef.current = true;
     const active = scannerRef.current;
+    const value = simulatedRef.current;
     if (!active) {
-      onDecoded(simulatedValue);
+      onDecodedRef.current(value);
       return;
     }
     const wasRunning = (active as unknown as { isScanning?: boolean }).isScanning;
     const teardown = wasRunning
       ? active.stop().catch(() => undefined)
       : Promise.resolve();
-    teardown.finally(() => onDecoded(simulatedValue));
+    teardown.finally(() => onDecodedRef.current(value));
   };
 
   // ── Image upload fallback ──
@@ -129,7 +144,7 @@ export function QrScanner({ onDecoded, simulatedValue }: QrScannerProps) {
       const result = await instance.scanFile(file, false);
       if (!decodedRef.current) {
         decodedRef.current = true;
-        onDecoded(result);
+        onDecodedRef.current(result);
       }
     } catch {
       setCameraError("Could not detect a QR code in that image. Try again.");

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import type { GeoPoint } from "./types";
 
 const EARTH_RADIUS_KM = 6371;
@@ -87,6 +87,10 @@ export function useGeolocation(): GeolocationController {
     setStart(startPoint);
     lastPointRef.current = startPoint;
     setCurrent(startPoint);
+    // Seed the path with the start point so the traced polyline connects the
+    // green start pin to subsequent positions (the first tick only runs ~1.5s
+    // later; without this the path "appears late" and never reaches the pin).
+    setPath([startPoint]);
 
     simTimerRef.current = setInterval(() => {
       lat += 0.0004 + Math.random() * 0.0002;
@@ -170,15 +174,22 @@ export function useGeolocation(): GeolocationController {
     setPath([]);
   }, [stop]);
 
-  return {
-    distanceKm,
-    current,
-    start,
-    isSimulated,
-    speedKph,
-    path,
-    begin,
-    stop,
-    reset,
-  };
+  // Memoise so consumers that destructure this object (and use it in
+  // useCallback deps / child prop identities) don't see a fresh reference on
+  // every render. Without this, `useRide`'s callbacks churn identity each
+  // render, tearing down the QR camera mid-scan.
+  return useMemo(
+    () => ({
+      distanceKm,
+      current,
+      start,
+      isSimulated,
+      speedKph,
+      path,
+      begin,
+      stop,
+      reset,
+    }),
+    [distanceKm, current, start, isSimulated, speedKph, path, begin, stop, reset],
+  );
 }

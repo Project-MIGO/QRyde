@@ -28,6 +28,12 @@ const Polyline = dynamic(
   () => import("react-leaflet").then((m) => m.Polyline),
   { ssr: false },
 );
+// Child component that follows the live GPS position. Imported separately so
+// it can statically use react-leaflet's `useMap` hook without breaking SSR.
+const MapFollower = dynamic(
+  () => import("./MapFollower").then((m) => m.MapFollower),
+  { ssr: false },
+);
 
 // ---------------------------------------------------------------------------
 // Leaflet icon factory — loaded dynamically on the client only.
@@ -179,6 +185,10 @@ export function MapNavigator({ path, current, start }: MapNavigatorProps) {
         attributionControl={false}
       >
         <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
+
+        {/* Recentre the map on the live position (MapContainer's center
+            prop is init-only, so following must happen via a child). */}
+        <MapFollower current={current} />
 
         {/* Start marker — green pin */}
         {start && (
