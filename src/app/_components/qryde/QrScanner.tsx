@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
-import { FiCamera, FiZap } from "react-icons/fi";
+import { FiCamera, FiImage, FiZap } from "react-icons/fi";
 
 interface QrScannerProps {
   /** Called once with the decoded raw string. */
@@ -12,50 +12,24 @@ interface QrScannerProps {
 }
 
 /**
- * Wraps html5-qrcode with careful lifecycle handling so the camera stream is
- * always torn down between transitions (avoids dual-stream crashes / leaks).
+ * Wraps html5-qrcode with careful lifecycle handling.
  *
- * On iOS Safari the camera defaults to fullscreen. We use a MutationObserver
- * to inject playsinline attributes BEFORE the video element starts playing.
- * If the camera still can't start, a graceful error state + simulate button
- * keep the flow demonstrable.
+ * On iOS (especially Freighter's in-app browser), the camera often can't
+ * start inline. We provide two fallbacks:
+ * 1. "Upload QR image" — select a photo/screenshot of a QR code
+ * 2. "Simulate scan" — use the demo deep link
  */
 export function QrScanner({ onDecoded, simulatedValue }: QrScannerProps) {
   const reactId = useId();
   const regionId = `qryde-qr-region-${reactId.replace(/:/g, "")}`;
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const decodedRef = useRef(false);
-  const observerRef = useRef<MutationObserver | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [starting, setStarting] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
-  // ── MutationObserver: catch <video> as soon as html5-qrcode adds it ──
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const el = document.getElementById(regionId);
-    if (!el) return;
-
-    const observer = new MutationObserver(() => {
-      const video = el.querySelector("video") as HTMLVideoElement | null;
-      if (video) {
-        video.setAttribute("playsinline", "");
-        video.setAttribute("webkit-playsinline", "");
-        video.style.objectFit = "cover";
-        video.style.width = "100%";
-        video.style.height = "100%";
-      }
-    });
-
-    observer.observe(el, { childList: true, subtree: true });
-    observerRef.current = observer;
-
-    return () => {
-      observer.disconnect();
-      observerRef.current = null;
-    };
-  }, [regionId]);
-
-  // ── QR scanner lifecycle ──
+  // ── Camera-based scanner ──
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -76,10 +50,25 @@ export function QrScanner({ onDecoded, simulatedValue }: QrScannerProps) {
         .finally(() => onDecoded(decodedText));
     };
 
+    // Watch for the video element being added so we can add playsinline
+    // BEFORE iOS Safari starts playback.
+    const mo = new MutationObserver(() => {
+      const video = element.querySelector("video") as HTMLVideoElement | null;
+      if (video) {
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
+        video.style.objectFit = "cover";
+        video.style.width = "100%";
+        video.style.height = "100%";
+        mo.disconnect();
+      }
+    });
+    mo.observe(element, { childList: true, subtree: true });
+
     instance
       .start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 230, height: 230 } },
+        { fps: 10, qrbox: { width: 230, height: 230 }, aspectRatio: 1 },
         handleSuccess,
         undefined,
       )
@@ -95,6 +84,7 @@ export function QrScanner({ onDecoded, simulatedValue }: QrScannerProps) {
       });
 
     return () => {
+      mo.disconnect();
       cancelled = true;
       const active = scannerRef.current;
       scannerRef.current = null;
@@ -113,6 +103,7 @@ export function QrScanner({ onDecoded, simulatedValue }: QrScannerProps) {
     };
   }, [onDecoded, regionId]);
 
+  // ── Simulate scan ──
   const simulate = () => {
     if (decodedRef.current) return;
     decodedRef.current = true;
@@ -128,10 +119,34 @@ export function QrScanner({ onDecoded, simulatedValue }: QrScannerProps) {
     teardown.finally(() => onDecoded(simulatedValue));
   };
 
+  // ── Image upload fallback ──
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || decodedRef.current) return;
+    setUploading(true);
+    try {
+      const instance = new Html5Qrcode("qr-upload-tmp", { verbose: false });
+      const result = await instance.scanFile(file, false);
+      if (!decodedRef.current) {
+        decodedRef.current = true;
+        onDecoded(result);
+      }
+    } catch {
+      setCameraError("Could not detect a QR code in that image. Try again.");
+    } finally {
+      setUploading(false);
+      // Reset file input so the same file can be re-selected.
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <div className="qr-scanner">
       <div className="qr-scanner__viewport">
         <div id={regionId} className="qr-scanner__video" />
+
+        {/* Hidden div for file-based QR scanning */}
+        <div id="qr-upload-tmp" style={{ display: "none" }} />
 
         {/* Framing reticle overlay */}
         <div className="qr-scanner__reticle-wrap">
@@ -153,17 +168,46 @@ export function QrScanner({ onDecoded, simulatedValue }: QrScannerProps) {
         {cameraError && (
           <div className="qr-scanner__overlay qr-scanner__overlay--error">
             <FiCamera className="qr-scanner__overlay-icon" />
-            <span className="qr-scanner__overlay-title">Camera unavailable in this view</span>
+            <span className="qr-scanner__overlay-title">
+              Camera unavailable in this view
+            </span>
             <span className="qr-scanner__overlay-hint">
-              Use the simulate button below to continue the demo.
+              Use the upload or simulate buttons below.
             </span>
           </div>
         )}
       </div>
 
-      <button type="button" onClick={simulate} className="qr-scanner__simulate">
-        <FiZap className="qr-scanner__simulate-icon" /> Simulate scan
-      </button>
+      <div className="qr-scanner__actions">
+        {/* Hidden file input for QR image upload */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleFileUpload}
+          style={{ display: "none" }}
+          id={`qr-file-${regionId}`}
+        />
+
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="qr-scanner__simulate"
+          disabled={uploading}
+        >
+          <FiImage className="qr-scanner__simulate-icon" />{" "}
+          {uploading ? "Scanning image…" : "Upload QR image"}
+        </button>
+
+        <button
+          type="button"
+          onClick={simulate}
+          className="qr-scanner__simulate"
+        >
+          <FiZap className="qr-scanner__simulate-icon" /> Simulate scan
+        </button>
+      </div>
     </div>
   );
 }

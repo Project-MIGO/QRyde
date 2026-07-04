@@ -3,21 +3,32 @@
 import { useCallback, useEffect, useState } from "react";
 import { NETWORK_PASSPHRASE } from "../lib/stellar";
 
-const SHORT_TIMEOUT_MS = 3000;
-
-function withTimeout<T>(p: Promise<T>, fallback: T, ms = SHORT_TIMEOUT_MS): Promise<T> {
-  return Promise.race([
-    p,
-    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
-  ]);
+// ---------------------------------------------------------------------------
+// Types for the raw Freighter extension API (window.freighter).
+// This is what both the desktop extension AND the iOS in-app browser inject.
+// We bypass @stellar/freighter-api because its wrapper has compatibility
+// issues across platforms.
+// ---------------------------------------------------------------------------
+interface FreighterGlobal {
+  isConnected: () => Promise<{ isConnected: boolean; error?: string }>;
+  getAddress: () => Promise<{ address: string; error?: string }>;
+  getNetwork: () => Promise<{ network: string; networkPassphrase: string; error?: string }>;
+  requestAccess: () => Promise<{ address: string; error?: string }>;
+  signTransaction: (
+    xdr: string,
+    opts?: { networkPassphrase?: string; address?: string },
+  ) => Promise<{ signedTxXdr: string; error?: string }>;
 }
 
-/** True if the user is on an iOS or Android mobile device. */
-function isMobileDevice(): boolean {
-  if (typeof window === "undefined") return false;
-  return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+function getFreighter(): FreighterGlobal | null {
+  if (typeof window === "undefined") return null;
+  const w = window as Window & { freighter?: FreighterGlobal };
+  return w.freighter ?? null;
 }
 
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 export type WalletStatus = "idle" | "checking" | "ready" | "error";
 
 export interface WalletState {
@@ -31,6 +42,9 @@ export interface WalletState {
   sign: (xdr: string) => Promise<string>;
 }
 
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
 export function useWallet(): WalletState {
   const [status, setStatus] = useState<WalletStatus>("idle");
   const [publicKey, setPublicKey] = useState<string | null>(null);
@@ -38,49 +52,33 @@ export function useWallet(): WalletState {
   const [error, setError] = useState<string | null>(null);
   const [installed, setInstalled] = useState(false);
 
-  // On mount, quickly check for existing Freighter session.
-  // Don't block the UI — if nothing is found, stay "idle".
+  // On mount: detect if Freighter is present and try restoring a session.
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      const f = getFreighter();
+      if (!f) {
+        if (!cancelled) setInstalled(false);
+        return;
+      }
+
+      if (!cancelled) setInstalled(true);
+
       try {
-        const freighter = await import("@stellar/freighter-api");
-        const mobile = isMobileDevice();
-
-        if (!mobile) {
-          const conn = await withTimeout(freighter.isConnected(), {
-            isConnected: false,
-          }, 1500); // shorter timeout for initial check
-          if (cancelled) return;
-          if (!conn.isConnected) {
-            setInstalled(false);
-            return; // stay idle
-          }
-          setInstalled(true);
-        } else {
-          setInstalled(true); // assume installed on mobile
-        }
-
-        // Try restoring session — but don't hang the UI.
-        const addr = await withTimeout(freighter.getAddress(), {
-          address: "",
-        }, 2000);
+        // Quick check: is there already an approved session?
+        const addr = await f.getAddress();
         if (cancelled) return;
 
-        if (addr.address) {
+        if (addr.address && !addr.error) {
           setPublicKey(addr.address);
-          const net = await withTimeout(freighter.getNetwork(), {
-            network: "",
-            networkPassphrase: "",
-          }, 2000);
-          if (!cancelled) {
+          const net = await f.getNetwork();
+          if (!cancelled && !net.error) {
             setNetwork(net.network || net.networkPassphrase || null);
             setStatus("ready");
           }
         }
-        // else stay idle
       } catch {
-        // Silently stay idle — user will tap Connect when ready.
+        // No session yet — that's fine.
       }
     })();
     return () => {
@@ -88,43 +86,31 @@ export function useWallet(): WalletState {
     };
   }, []);
 
+  // Connect: request access from Freighter.
   const connect = useCallback(async () => {
     setError(null);
     setStatus("checking");
+
+    const f = getFreighter();
+    if (!f) {
+      setError(
+        "Freighter not detected. Install the Freighter extension (desktop) or open this page in the Freighter app browser (iOS/Android).",
+      );
+      setStatus("error");
+      return;
+    }
+
     try {
-      const freighter = await import("@stellar/freighter-api");
-      const mobile = isMobileDevice();
-
-      // On desktop: verify extension is installed first.
-      if (!mobile) {
-        const conn = await withTimeout(freighter.isConnected(), {
-          isConnected: false,
-        });
-        if (!conn.isConnected) {
-          throw new Error(
-            "Freighter not detected. Install the Freighter browser extension from freighter.app and reload.",
-          );
-        }
-        setInstalled(true);
-      }
-
-      // requestAccess() works for both platforms:
-      // - Desktop: triggers the Freighter extension popup
-      // - Mobile: opens the Freighter app via WalletConnect deep link
-      const access = await freighter.requestAccess();
+      const access = await f.requestAccess();
       if (access.error) throw new Error(access.error);
       if (!access.address) {
-        throw new Error(
-          mobile
-            ? "No address returned. Make sure the Freighter app is installed on your phone and try again."
-            : "No address returned — did you approve the request?",
-        );
+        throw new Error("No address returned — did you approve the connection?");
       }
+
       setPublicKey(access.address);
-      const net = await withTimeout(freighter.getNetwork(), {
-        network: "",
-        networkPassphrase: "",
-      });
+      setInstalled(true);
+
+      const net = await f.getNetwork();
       setNetwork(net.network || net.networkPassphrase || null);
       setStatus("ready");
     } catch (e) {
@@ -143,21 +129,28 @@ export function useWallet(): WalletState {
 
   const sign = useCallback(
     async (xdr: string): Promise<string> => {
+      const f = getFreighter();
+      if (!f) throw new Error("Freighter not available");
       if (!publicKey) throw new Error("Wallet not connected");
-      const freighter = await import("@stellar/freighter-api");
-      const signed = await freighter.signTransaction(xdr, {
+
+      const signed = await f.signTransaction(xdr, {
         networkPassphrase: NETWORK_PASSPHRASE,
         address: publicKey,
       });
-      if (signed.error) {
-        throw new Error(
-          typeof signed.error === "string" ? signed.error : "Signing rejected",
-        );
-      }
+      if (signed.error) throw new Error(signed.error);
       return signed.signedTxXdr;
     },
     [publicKey],
   );
 
-  return { status, publicKey, network, error, installed, connect, disconnect, sign };
+  return {
+    status,
+    publicKey,
+    network,
+    error,
+    installed,
+    connect,
+    disconnect,
+    sign,
+  };
 }

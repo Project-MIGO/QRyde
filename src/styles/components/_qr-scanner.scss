@@ -139,6 +139,13 @@
     width: 12px;
     height: 12px;
   }
+
+  &__actions {
+    display: flex;
+    gap: $space-2;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 
 .scan-screen {
